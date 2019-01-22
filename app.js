@@ -4,6 +4,13 @@ const Hapi = require('hapi');
 const Path = require('path');
 const Vision = require('vision');
 const Handlebars = require('handlebars');
+const mongoose = require('mongoose');
+
+const Task = require('./models/task');
+
+mongoose.connect('mongodb://localhost/hapidb', {useNewUrlParser: true})
+    .then(() =>  console.log('Connected to database'))
+    .catch(err => console.log(err));
 
 // Add Connection
 const server = Hapi.server({
@@ -31,6 +38,35 @@ const init = async () => {
         path: '/',
         handler: (request, h) => {
             return h.view('index'); 
+        }
+    });
+
+    // GET Tasks route
+    server.route({ 
+        method: 'GET',
+        path: '/tasks',
+        handler: (request, h) => {
+            Task.find((err, tasks) => {
+                if (!tasks) { console.log('No tasks found')}
+                return h.view('task', {
+                    
+                    tasks
+                }); 
+            });
+        }
+    });
+
+    server.route({ 
+        method: 'POST',
+        path: '/tasks',
+        handler: (request, h) => {
+            Task.find((err, tasks) => {
+                if (!tasks) { console.log('No tasks found')}
+                return h.view('task', {
+                    
+                    tasks
+                }); 
+            });
         }
     });
 
