@@ -2,6 +2,8 @@
 
 const Hapi = require('hapi');
 const Path = require('path');
+const Vision = require('vision');
+const Handlebars = require('handlebars');
 
 // Add Connection
 const server = Hapi.server({
@@ -14,23 +16,31 @@ const server = Hapi.server({
     }
 });
 
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: (request, h) => {
-        return '<h1>Hello, world again!</h1>';
-    }
-});
-
-server.route({
-    method: 'GET',
-    path: '/users/{name}',
-    handler: (request, h) => {
-        return  `${request.params.name}, you are welcome`
-    }
-});
 
 const init = async () => {
+
+    await server.register(Vision);
+
+    server.views({
+        engines: { html: Handlebars},
+        path: __dirname + '/views'
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/',
+        handler: (request, h) => {
+            return h.view('index'); 
+        }
+    });
+
+    server.route({ 
+        method: 'GET',
+        path: '/users/{name}',
+        handler: (request, h) => {
+            return  `${request.params.name}, you are welcome`
+        }
+    });
 
     await server.register(require('inert'));
 
