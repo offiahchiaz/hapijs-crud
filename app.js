@@ -12,7 +12,7 @@ server.route({
     method: 'GET',
     path: '/',
     handler: (request, h) => {
-        return 'Hello, world again!';
+        return '<h1>Hello, world again!</h1>';
     }
 });
 
