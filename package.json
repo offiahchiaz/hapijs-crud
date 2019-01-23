@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "boom": "^7.3.0",
     "handlebars": "^4.0.12",
     "hapi": "^18.0.0",
     "inert": "^5.1.2",

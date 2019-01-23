@@ -5,6 +5,7 @@ const Path = require('path');
 const Vision = require('vision');
 const Handlebars = require('handlebars');
 const mongoose = require('mongoose');
+const Boom = require('boom');
 
 const Task = require('./models/task');
 
@@ -12,15 +13,16 @@ mongoose.connect('mongodb://localhost/hapidb', {useNewUrlParser: true})
     .then(() =>  console.log('Connected to database'))
     .catch(err => console.log(err));
 
+
 // Add Connection
 const server = Hapi.server({
     port: 4000,
     host: 'localhost',
-    routes: {
-        files: {
-            relativeTo: Path.join(__dirname, 'public') 
-        }
-    }
+    // routes: {
+    //     files: {
+    //         relativeTo: Path.join(__dirname, 'public') 
+    //     }
+    // }
 });
 
 
@@ -38,35 +40,37 @@ const init = async () => {
         path: '/',
         handler: (request, h) => {
             return h.view('index'); 
-        }
+        } 
     });
 
     // GET Tasks route
     server.route({ 
         method: 'GET',
         path: '/tasks',
-        handler: (request, h) => {
-            Task.find((err, tasks) => {
-                if (!tasks) { console.log('No tasks found')}
-                return h.view('task', {
-                    
-                    tasks
-                }); 
-            });
+        handler: async (request, h) => {
+            try {
+                let tasks = await Task.find({});
+                if (!tasks) tasks = [];
+                return h.view('tasks', {tasks})
+            } catch (e) {
+                return Boom.badImplementation(e);
+            }
         }
     });
 
+    // POST Tasks routes
     server.route({ 
         method: 'POST',
         path: '/tasks',
-        handler: (request, h) => {
-            Task.find((err, tasks) => {
-                if (!tasks) { console.log('No tasks found')}
-                return h.view('task', {
-                    
-                    tasks
-                }); 
-            });
+        handler: async (request, h) => {
+            let text = request.payload.text;
+            let newTask = new Task({text});
+            try {
+                let task = await newTask.save();
+                return h.redirect('/tasks', {task});
+            } catch (error) {
+                return Boom.badImplementation(e);
+            }
         }
     });
 
@@ -78,15 +82,15 @@ const init = async () => {
         }
     });
 
-    await server.register(require('inert'));
+    // await server.register(require('inert'));
 
-    server.route({
-        method: 'GET',
-        path: '/about',
-        handler: (request, h) => {
-            return h.file('about.html');
-        }
-    });
+    // server.route({
+    //     method: 'GET',
+    //     path: '/about',
+    //     handler: (request, h) => {
+    //         return h.file('about.html');
+    //     }
+    // });
 
     await server.start();
     console.log(`Server running on port ${server.info.uri}`);
