@@ -2,7 +2,7 @@
 <p><a href="/task">Add task</a></p>
 <ul>
     {{#each tasks}}
-        <li>{{text}} <span>{{formatted_date}}</span></li>
+        <li><a href={{url}}>{{text}}</a> <span>{{formatted_date}}</span></li>
     {{else}}
         <p>No task found in database</p>
     {{/each}}

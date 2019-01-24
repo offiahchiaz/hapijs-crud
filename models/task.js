@@ -15,14 +15,14 @@ const TaskSchema = new Schema({
         default: Date.now
     }
 });
-
+ 
 // Virtual for task url
 TaskSchema.virtual('url').get(function () {
-    return `/tasks/${this._id}`;
+    return `/task/${this._id}`;
 });
 
 TaskSchema.virtual('formatted_date').get(function () {
-    return moment(this.created_at).calendar();
+    return moment(this.created_at).startOf('hour').fromNow();
 })
 
 module.exports = mongoose.model('Task', TaskSchema);

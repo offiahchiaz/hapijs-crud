@@ -43,7 +43,7 @@ const init = async () => {
         } 
     });  
  
-    // GET Tasks route
+    // GET  all Tasks route
     server.route({ 
         method: 'GET',
         path: '/tasks',
@@ -63,12 +63,12 @@ const init = async () => {
         method: 'GET',
         path: '/task',
         handler: (request, h) => {
-            return h.view('tasks');
+            return h.view('task_form');
         }
-    })
+    });
 
     // POST Tasks route
-    server.route({ 
+    server.route({       
         method: 'POST',
         path: '/task', 
         handler: async (request, h) => {
@@ -77,11 +77,28 @@ const init = async () => {
             try {
                 await newTask.save();
                 return h.redirect('/tasks');
-            } catch (error) {
+            } catch (e) {
                 return Boom.badImplementation(e);
             }
         }
     });
+
+    // GET update task route
+    server.route({   
+        method: 'GET',
+        path: '/task/{id}',
+        handler: async (request, h) => {
+            try {
+                let task = await Task.findById(request.params.id).exec();
+                return h.view('task_form', {task});
+            } catch (e) {
+                Boom.badImplementation(e);
+            }
+
+        }
+    });
+
+    // 
 
     server.route({ 
         method: 'GET',
