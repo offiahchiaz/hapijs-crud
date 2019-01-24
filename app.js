@@ -41,8 +41,8 @@ const init = async () => {
         handler: (request, h) => {
             return h.view('index'); 
         } 
-    });
-
+    });  
+ 
     // GET Tasks route
     server.route({ 
         method: 'GET',
@@ -51,23 +51,32 @@ const init = async () => {
             try {
                 let tasks = await Task.find({});
                 if (!tasks) tasks = [];
-                return h.view('tasks', {tasks})
+                return h.view('tasks_list', {tasks})
             } catch (e) {
                 return Boom.badImplementation(e);
             }
         }
     });
+    
+    // GET Task route
+    server.route({
+        method: 'GET',
+        path: '/task',
+        handler: (request, h) => {
+            return h.view('tasks');
+        }
+    })
 
-    // POST Tasks routes
+    // POST Tasks route
     server.route({ 
         method: 'POST',
-        path: '/tasks',
+        path: '/task', 
         handler: async (request, h) => {
             let text = request.payload.text;
             let newTask = new Task({text});
             try {
-                let task = await newTask.save();
-                return h.redirect('/tasks', {task});
+                await newTask.save();
+                return h.redirect('/tasks');
             } catch (error) {
                 return Boom.badImplementation(e);
             }
