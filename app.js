@@ -17,17 +17,18 @@ mongoose.connect('mongodb://localhost/hapidb', {useNewUrlParser: true})
 // Add Connection
 const server = Hapi.server({
     port: 4000,
-    host: 'localhost',
-    // routes: {
-    //     files: {
-    //         relativeTo: Path.join(__dirname, 'public') 
-    //     }
-    // }
+    host: 'localhost',  
+    routes: { 
+        files: {
+            relativeTo: Path.join(__dirname, 'public') 
+        }
+    } 
 });
 
 
 const init = async () => {
 
+    await server.register(require('inert'));
     await server.register(Vision);
 
     server.views({
@@ -35,8 +36,8 @@ const init = async () => {
         path: __dirname + '/views'
     });
 
-    server.route({
-        method: 'GET',
+    server.route({                    
+        method: 'GET', 
         path: '/',
         handler: (request, h) => {
             return h.view('index'); 
@@ -88,6 +89,7 @@ const init = async () => {
         method: 'GET',
         path: '/task/{id}',
         handler: async (request, h) => {
+            console.log(request.params.id);
             try {
                 let task = await Task.findById(request.params.id).exec();
                 return h.view('task_form', {task});
@@ -98,7 +100,23 @@ const init = async () => {
         }
     });
 
-    // 
+    // POST update task route
+    server.route({
+        method: 'PUT', 
+        path: '/task/{id}',
+        handler: async (request, h) => {
+            let text = request.payload.text;
+            console.log(request.params.id);
+            try {
+                await Task.findByIdAndUpdate(request.params.id, text, {});
+                console.log(request.params.id); 
+                return h.redirect('/tasks');
+            } catch (e) {
+                Boom.badImplementation(e);
+            }
+
+        }
+    })
 
     server.route({ 
         method: 'GET',
@@ -108,7 +126,7 @@ const init = async () => {
         }
     });
 
-    // await server.register(require('inert'));
+     
 
     // server.route({
     //     method: 'GET',
